@@ -1,181 +1,166 @@
-import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { INQUIRY_STATUSES, InquiryStatus } from "@/lib/site";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Download, Eye, RefreshCw, Search } from "lucide-react";
-import { toast } from "sonner";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AS Traders – Industrial Fasteners, Ludhiana</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#fff;--alt:#eef1f5;--ink:#16202e;--mut:#5b6673;--navy:#14264a;--navy-ink:#fff;--line:#cfd6de;--steel:#8a96a3}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1622;--alt:#172131;--ink:#e8edf3;--mut:#9aa6b3;--navy:#2b4a86;--line:#2c3a4d}}
+:root[data-theme="dark"]{--bg:#0f1622;--alt:#172131;--ink:#e8edf3;--mut:#9aa6b3;--navy:#2b4a86;--line:#2c3a4d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Barlow,system-ui,Arial,sans-serif}
+h1,h2,h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;line-height:1.1;margin:0 0 .5em;letter-spacing:.01em}
+h1{font-size:clamp(2.4rem,7vw,4.2rem)}h2{font-size:2rem}h3{font-size:1.3rem}
+a{color:inherit}.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);border-bottom:1px solid var(--line);z-index:5}
+.bar{display:flex;align-items:center;gap:14px;padding:10px 0;flex-wrap:wrap}
+.logo{font:700 1.6rem 'Barlow Condensed',Arial,sans-serif;text-decoration:none;color:var(--navy)}.logo b{background:var(--navy);color:var(--navy-ink);padding:0 7px;margin-right:6px}
+nav{display:flex;gap:16px;flex:1}nav a{text-decoration:none;font-weight:500;padding:6px 0}nav a.on{border-bottom:2px solid var(--navy)}
+.tools{display:flex;gap:8px;align-items:center}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--steel);border-radius:4px;padding:9px 10px;width:100%}
+.tools input{width:170px}
+.btn{display:inline-block;font:600 1rem Barlow,Arial,sans-serif;border:2px solid var(--navy);background:var(--navy);color:var(--navy-ink);padding:10px 18px;border-radius:4px;cursor:pointer;text-decoration:none;text-align:center}
+.btn.o{background:transparent;color:var(--navy)}.btn.w{background:#1f7a4d;border-color:#1f7a4d;color:#fff}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.o{color:var(--ink);border-color:var(--steel)}}
+:focus-visible{outline:3px solid #e0a100;outline-offset:2px}
+.cartb{position:relative}.cartb span{background:#e0a100;color:#111;border-radius:9px;font-size:.75rem;padding:0 6px;margin-left:6px}
+.hero{background:var(--navy);color:#fff;padding:72px 0;background-image:repeating-linear-gradient(115deg,transparent 0 14px,rgba(255,255,255,.05) 14px 16px)}
+.hero p{font-size:1.2rem;max-width:560px;color:#d5deec}.hero .btn.o{color:#fff;border-color:#fff}
+.sec{padding:56px 0}.alt{background:var(--alt)}
+.grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.card{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.card .img{background:var(--alt);border-radius:4px;height:150px;display:grid;place-items:center}
+.tag{font-size:.8rem;color:var(--mut)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0;counter-reset:s}
+.steps div{padding:16px;border-left:3px solid var(--navy);counter-increment:s}.steps div:before{content:counter(s);font:700 1.6rem 'Barlow Condensed';color:var(--steel);display:block}
+.cols{display:grid;gap:28px;grid-template-columns:240px 1fr}
+@media(max-width:760px){.cols{grid-template-columns:1fr}.tools input{width:120px}nav{order:5;width:100%;flex:none;overflow-x:auto}}
+label{display:block;font-weight:600;font-size:.9rem;margin:12px 0 4px}
+table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:middle}
+.scroll{overflow-x:auto}.note{background:#fff6d6;color:#3a2f00;border-left:4px solid #e0a100;padding:8px 12px;font-size:.9rem;border-radius:3px}
+.two{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+footer{background:var(--navy);color:#d5deec;padding:36px 0;font-size:.95rem}footer a{display:block}
+.qty{width:80px}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+<a class="logo" href="#/"><b>AS</b>Traders</a>
+<nav id="nav"><a href="#/products">Products</a><a href="#/about">About</a><a href="#/request-quote">Request a Quote</a><a href="#/contact">Contact</a></nav>
+<div class="tools"><input id="q" type="search" placeholder="Search products" aria-label="Search products">
+<a class="btn o cartb" href="#/cart" aria-label="Inquiry cart">Inquiry cart<span id="cc">0</span></a></div>
+</div></header>
+<main id="app"></main>
+<footer><div class="wrap two" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+<div><b>AS Traders</b><br>Fastener trading and distribution<br>Ludhiana, Punjab, India</div>
+<div><b>Products</b><span id="fcats"></span></div>
+<div><b>Contact</b><a href="tel:+919463635151">+91 94636 35151</a><a href="tel:+919463009889">+91 94630 09889</a><a href="mailto:astraders277@yahoo.in">astraders277@yahoo.in</a><a href="#/admin">Staff area (demo)</a></div>
+</div></footer>
+<script>
+/* ===== EDIT ME: business details & products ===== */
+const BIZ={phones:["9463635151","9463009889"],wa:"919463635151",email:"astraders277@yahoo.in",addr:"[Street address], Ludhiana, Punjab, India",hours:"[Mon–Sat, hours to be confirmed]"};
+const PRODUCTS=[
+{slug:"msi-washer",name:"MSI Washer",cat:"MSI Washers",unit:"kg",moq:"[MOQ – add]",stock:"Ask for availability",materials:["Mild Steel","Stainless Steel"],finishes:["Plain","Zinc Plated"],grade:"[Grade – add]",sizes:["M6","M8","M10","M12","M16"],desc:"General-purpose flat washer for spreading load under nuts and bolts. Sample description – replace with actual details.",specs:[["Standard","[Standard – add]"],["Thickness","[Add per size]"],["Outer diameter","[Add per size]"]],icon:"w"},
+{slug:"thread-rod",name:"Thread Rod",cat:"Thread Rods",unit:"pcs",moq:"[MOQ – add]",stock:"Ask for availability",materials:["Mild Steel","Stainless Steel"],finishes:["Plain","Zinc Plated","Galvanised"],grade:"[Grade – add]",sizes:["M6","M8","M10","M12","M16","M20"],desc:"Fully threaded rod for anchoring, hanging and general fabrication. Sample description – replace with actual details.",specs:[["Standard","[Standard – add]"],["Length","[e.g. 1 m / 3 m – add]"],["Thread pitch","[Add per size]"]],icon:"r"}
+];
+const CATS=["MSI Washers","Thread Rods","Bolts","Nuts","Screws","Washers & Pins","Anchors & Rivets"];
+const mk=(slug,name,cat,icon,sizes,fin)=>({slug,name,cat,unit:"pcs",moq:"[MOQ – add]",stock:"Ask for availability",materials:["Mild Steel","Stainless Steel"],finishes:fin||["Plain","Zinc Plated"],grade:"[Grade – add]",sizes,desc:name+" – sample description. Replace with actual details.",specs:[["Standard","[Standard – add]"],["Length / dimensions","[Add per size]"]],icon});
+const M=["M6","M8","M10","M12","M16","M20"],HDG=["Plain","Zinc Plated","Hot Dip Galvanised"],SM=["M3","M4","M5","M6","M8"];
+PRODUCTS.push(
+mk("hex-bolt","Hex Bolt","Bolts","b",M,HDG),mk("carriage-bolt","Carriage Bolt","Bolts","b",M),mk("allen-bolt","Allen Socket Cap Screw","Bolts","b",M,["Plain","Zinc Plated","Black Oxide"]),
+mk("stud-bolt","Stud Bolt","Bolts","b",M,HDG),mk("u-bolt","U-Bolt","Bolts","b",M,HDG),mk("eye-bolt","Eye Bolt","Bolts","b",M),mk("foundation-bolt","Foundation (J / L) Bolt","Bolts","b",M,HDG),
+mk("hex-nut","Hex Nut","Nuts","n",M,HDG),mk("lock-nut","Nyloc / Lock Nut","Nuts","n",M),mk("wing-nut","Wing Nut","Nuts","n",SM),mk("flange-nut","Flange Nut","Nuts","n",M),mk("cap-nut","Dome / Cap Nut","Nuts","n",M),mk("coupling-nut","Coupling Nut","Nuts","n",M),
+mk("machine-screw","Machine Screw","Screws","b",SM),mk("self-tapping-screw","Self-Tapping Screw","Screws","b",SM,["Plain","Zinc Plated","Black Oxide"]),mk("grub-screw","Grub / Set Screw","Screws","b",SM),mk("wood-screw","Wood Screw","Screws","b",SM),
+mk("spring-washer","Spring Washer","Washers & Pins","w",M),mk("plain-washer","Plain Washer","Washers & Pins","w",M),mk("split-pin","Split Pin / Cotter Pin","Washers & Pins","b",SM),mk("circlip","Circlip / Retaining Ring","Washers & Pins","w",SM),
+mk("anchor-bolt","Anchor Bolt","Anchors & Rivets","b",M,HDG),mk("wedge-anchor","Wedge Anchor","Anchors & Rivets","b",M),mk("rawl-plug","Rawl Plug / Wall Plug","Anchors & Rivets","n",SM),mk("pop-rivet","Pop Rivet","Anchors & Rivets","b",SM)
+);
+/* ================================================= */
+const $=s=>document.querySelector(s),app=$("#app");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let cart=store.get("as_cart",[]),mem=store.get("as_inq",[]);
+const saveCart=()=>{store.set("as_cart",cart);$("#cc").textContent=cart.length};
+const NUT='<svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,6 88,28 88,72 50,94 12,72 12,28" fill="#8a96a3" stroke="#5b6673" stroke-width="3"/><circle cx="50" cy="50" r="18" fill="var(--alt)" stroke="#5b6673" stroke-width="3"/></svg>',BOLT='<svg width="150" height="110" viewBox="0 0 150 110" aria-hidden="true"><polygon points="8,55 24,28 44,28 60,55 44,82 24,82" fill="#8a96a3" stroke="#5b6673" stroke-width="3" transform="translate(0,-14)"/><rect x="58" y="34" width="84" height="22" rx="2" fill="#8a96a3"/>'+Array.from({length:9},(_,i)=>`<line x1="${74+i*8}" y1="34" x2="${80+i*8}" y2="56" stroke="#5b6673" stroke-width="2"/>`).join("")+"</svg>",icon=t=>t==="n"?NUT:t==="b"?BOLT:icon0(t),icon0=t=>t==='<svg width="110" height="110" viewBox="0 0 110 110" aria-hidden="true"><circle cx="55" cy="55" r="48" fill="#8a96a3"/><circle cx="55" cy="55" r="20" fill="var(--alt)"/><circle cx="55" cy="55" r="48" fill="none" stroke="#5b6673" stroke-width="3"/></svg>':'<svg width="190" height="50" viewBox="0 0 190 50" aria-hidden="true"><rect y="14" width="190" height="22" rx="3" fill="#8a96a3"/>'+Array.from({length:24},(_,i)=>`<line x1="${6+i*8}" y1="14" x2="${12+i*8}" y2="36" stroke="#5b6673" stroke-width="2"/>`).join("")+"</svg>";
+const wa=t=>`https://wa.me/${BIZ.wa}?text=${encodeURIComponent(t)}`;
+const opts=a=>a.map(x=>`<option>${esc(x)}</option>`).join("");
+const P=s=>PRODUCTS.find(p=>p.slug===s);
 
-export const Route = createFileRoute("/admin/inquiries")({
-  component: AdminInquiriesPage,
-});
+function card(p){return `<article class="card"><div class="img">${icon(p.icon)}</div><span class="tag">${esc(p.cat)} · sample data</span><h3><a href="#/products/${p.slug}">${esc(p.name)}</a></h3><span class="tag">Sizes: ${p.sizes.join(", ")} · Unit: ${p.unit}</span><div style="display:flex;gap:8px;margin-top:auto"><a class="btn o" href="#/products/${p.slug}">Details</a><button class="btn" data-add="${p.slug}">Add to inquiry</button></div></article>`}
 
-function AdminInquiriesPage() {
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [searchTerm, setSearchTerm] = useState("");
+const views={
+home(){return `<section class="hero"><div class="wrap"><h1>Your Trusted Partner for Industrial Fasteners</h1><p>Quality fasteners, dependable supply, and solutions for your business.</p><p style="display:flex;gap:12px;flex-wrap:wrap"><a class="btn" style="background:#fff;color:var(--navy);border-color:#fff" href="#/products">Explore Products</a><a class="btn o" href="#/request-quote">Request a Quote</a></p></div></section>
+<section class="sec"><div class="wrap"><h2>Product categories</h2><div class="grid">${CATS.map(c=>`<a class="card" style="text-decoration:none" href="#/products?c=${c}"><h3>${c}</h3><span class="tag">Browse ${c.toLowerCase()}</span></a>`).join("")}</div></div></section>
+<section class="sec alt"><div class="wrap"><h2>Why choose AS Traders</h2><div class="grid">${[["Product variety","A growing range of fasteners and industrial hardware."],["Reliable supply","[Edit: describe your supply commitment]"],["Bulk order support","Quote several products and sizes in one request."],["Customer-focused service","[Edit: describe your service approach]"]].map(x=>`<div class="card"><h3>${x[0]}</h3>${x[1]}</div>`).join("")}</div></div></section>
+<section class="sec"><div class="wrap"><h2>Industries we serve</h2><p>Manufacturers · Construction companies · Fabrication businesses · Wholesalers and dealers · Hardware distributors</p></div></section>
+<section class="sec alt"><div class="wrap"><h2>How it works</h2><div class="steps"><div>Browse products</div><div>Request a quote</div><div>Confirm order</div><div>Dispatch</div></div></div></section>
+<section class="sec"><div class="wrap"><h2>Talk to us</h2><p style="display:flex;gap:12px;flex-wrap:wrap"><a class="btn w" href="${wa("Hello AS Traders, I would like to enquire about fasteners.")}" target="_blank" rel="noopener">WhatsApp us</a><a class="btn o" href="#/contact">Phone &amp; contact details</a></p></div></section>`},
 
-  const { data: inquiries, refetch, isFetching } = useQuery({
-    queryKey: ["admin_inquiries"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("inquiries")
-        .select("*, inquiry_items(*)")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
+products(q){const p=new URLSearchParams(q);const f={q:p.get("q")||"",c:p.get("c")||"",s:p.get("s")||"",m:p.get("m")||"",f:p.get("f")||""};
+const all=k=>[...new Set(PRODUCTS.flatMap(x=>[].concat(x[k])))];
+const sel=(id,l,list,v)=>`<label for="${id}">${l}</label><select id="${id}"><option value="">All</option>${list.map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("")}</select>`;
+const rs=PRODUCTS.filter(x=>(!f.q||(x.name+x.cat+x.desc).toLowerCase().includes(f.q.toLowerCase()))&&(!f.c||x.cat===f.c)&&(!f.s||x.sizes.includes(f.s))&&(!f.m||x.materials.includes(f.m))&&(!f.f||x.finishes.includes(f.f)));
+return `<section class="sec"><div class="wrap"><h1 style="font-size:2.6rem">Product catalog</h1><div class="cols"><aside><label for="fq">Search</label><input id="fq" value="${esc(f.q)}">${sel("fc","Category",CATS,f.c)}${sel("fs","Size",all("sizes"),f.s)}${sel("fm","Material",all("materials"),f.m)}${sel("ff","Finish",all("finishes"),f.f)}<p><a href="#/products">Clear filters</a></p></aside><div>${rs.length?`<div class="grid">${rs.map(card).join("")}</div>`:"<p>No products match these filters. Clear a filter or <a href='#/request-quote'>request an item we do not list yet</a>.</p>"}<p class="note" style="margin-top:20px">Product data shown is sample data. Add real products in the PRODUCTS list (or the admin panel in the full build).</p></div></div></div></section>`},
 
-  const handleStatusChange = async (id: string, newStatus: InquiryStatus) => {
-    const { error } = await supabase
-      .from("inquiries")
-      .update({ status: newStatus })
-      .eq("id", id);
-    if (error) {
-      toast.error("Failed to update status: " + error.message);
-    } else {
-      toast.success(`Updated status to ${newStatus}`);
-      refetch();
-    }
-  };
+detail(slug){const p=P(slug);if(!p)return `<div class="wrap sec"><h2>Product not found</h2><a href="#/products">Back to catalog</a></div>`;
+const rel=PRODUCTS.filter(x=>x!==p);
+return `<section class="sec"><div class="wrap"><p class="tag"><a href="#/products">Products</a> / ${esc(p.cat)}</p><div class="cols" style="grid-template-columns:1fr 1fr"><div class="card"><div class="img" style="height:260px">${icon(p.icon)}</div><span class="tag">Placeholder image – upload product photo</span></div>
+<div><h1 style="font-size:2.6rem">${esc(p.name)}</h1><p class="note">Sample data – replace with verified specifications.</p><p>${esc(p.desc)}</p>
+<table><tbody>${p.specs.concat([["Material",p.materials.join(", ")],["Finish",p.finishes.join(", ")],["Grade",p.grade],["Unit",p.unit],["Minimum order",p.moq],["Availability",p.stock]]).map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td></tr>`).join("")}</tbody></table>
+<label for="ds">Size</label><select id="ds">${opts(p.sizes)}</select><label for="dm">Material</label><select id="dm">${opts(p.materials)}</select><label for="df">Finish</label><select id="df">${opts(p.finishes)}</select>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px"><button class="btn" id="dadd" data-slug="${p.slug}">Add to inquiry cart</button><a class="btn w" target="_blank" rel="noopener" href="${wa("Hello AS Traders, I would like a quote for "+p.name)}">WhatsApp inquiry</a></div></div></div>
+<h2 style="margin-top:40px">Related products</h2><div class="grid">${rel.map(card).join("")||"<p>More products coming soon.</p>"}</div></div></section>`},
 
-  const exportCSV = () => {
-    if (!inquiries || inquiries.length === 0) return;
-    const headers = ["Reference", "Date", "Customer", "Company", "Phone", "Email", "Status", "Delivery Location"];
-    const rows = inquiries.map((iq) => [
-      iq.reference_code,
-      new Date(iq.created_at).toLocaleDateString(),
-      `"${iq.customer_name}"`,
-      `"${iq.company_name || ""}"`,
-      iq.phone,
-      iq.email || "",
-      iq.status,
-      `"${iq.delivery_location || ""}"`,
-    ]);
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `AS_Traders_Inquiries_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+cart(){if(!cart.length)return `<div class="wrap sec"><h1>Inquiry cart</h1><p>Your cart is empty. <a href="#/products">Browse products</a> and add the sizes you need.</p></div>`;
+return `<div class="wrap sec"><h1>Inquiry cart</h1><div class="scroll"><table><thead><tr><th>Product</th><th>Size</th><th>Material / finish</th><th>Qty</th><th>Unit</th><th></th></tr></thead><tbody>${cart.map((c,i)=>`<tr><td>${esc(c.name)}</td><td>${esc(c.size)}</td><td>${esc(c.mat)} / ${esc(c.fin)}</td><td><input class="qty" type="number" min="1" value="${c.qty}" data-q="${i}" aria-label="Quantity"></td><td>${esc(c.unit)}</td><td><button class="btn o" data-rm="${i}">Remove</button></td></tr>`).join("")}</tbody></table></div><p style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#/request-quote">Request quote for these items</a><a class="btn o" href="#/products">Add more products</a></p></div>`},
 
-  const filtered = (inquiries || []).filter((iq) => {
-    const matchesStatus = filterStatus === "all" || iq.status === filterStatus;
-    const matchesSearch =
-      iq.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      iq.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      iq.reference_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      iq.phone?.includes(searchTerm);
-    return matchesStatus && matchesSearch;
-  });
+quote(){return `<div class="wrap sec" style="max-width:760px"><h1>Request a quote</h1><div id="qbox"><div class="scroll">${cart.length?`<p><b>Items in your inquiry (${cart.length}):</b> ${cart.map(c=>esc(c.name+" "+c.size+" ×"+c.qty+c.unit)).join("; ")} – <a href="#/cart">edit</a></p>`:`<p>No items in cart. Add products first, or describe what you need below.</p>`}</div>
+<form id="qf" novalidate><div class="two"><div><label for="n">Customer name *</label><input id="n" required></div><div><label for="co">Company name</label><input id="co"></div><div><label for="ph">Phone *</label><input id="ph" type="tel" required></div><div><label for="em">Email *</label><input id="em" type="email" required></div><div><label for="gs">GSTIN (optional)</label><input id="gs" maxlength="15"></div><div><label for="dl">Delivery location *</label><input id="dl" required></div></div>
+${cart.length?"":`<div class="two"><div><label for="pp">Product</label><select id="pp">${opts(PRODUCTS.map(p=>p.name))}</select></div><div><label for="ps">Size / material / finish</label><input id="ps"></div><div><label for="pq">Quantity</label><input id="pq" type="number" min="1"></div><div><label for="pu">Unit</label><select id="pu"><option>kg</option><option>pcs</option><option>boxes</option></select></div></div>`}
+<label for="rq">Additional requirements</label><textarea id="rq" rows="3"></textarea><label for="fl">Specification sheet or reference image (optional)</label><input id="fl" type="file"><p class="tag">Demo: file names are noted but files are not uploaded.</p>
+<p id="err" role="alert" style="color:#b3261e"></p><button class="btn" type="submit">Submit quote request</button></form></div></div>`},
 
-  return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 font-display">
-            Inquiry & RFQ Management
-          </h1>
-          <p className="text-xs text-slate-500">Track incoming customer quotes and status pipelines.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
-            <RefreshCw className={`w-4 h-4 mr-1 ${isFetching ? "animate-spin" : ""}`} /> Refresh
-          </Button>
-          <Button variant="outline" size="sm" onClick={exportCSV}>
-            <Download className="w-4 h-4 mr-1" /> Export CSV
-          </Button>
-        </div>
-      </div>
+about(){return `<div class="wrap sec" style="max-width:760px"><h1>About AS Traders</h1><p>AS Traders is a fastener trading and distribution business based in Ludhiana, Punjab. [Edit: add your story, founding details and verified claims.]</p><h2>Our products</h2><p>MSI washers, thread rods, and a growing catalog of fasteners and industrial hardware.</p><h2>Our business approach</h2><p>[Edit: describe how you source, stock and supply.]</p><h2>Our commitment to customers</h2><p>[Edit: describe response times, support and service commitments.]</p><h2>Location</h2><p>${esc(BIZ.addr)}</p></div>`},
 
-      {/* Filter bar */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search by customer, company, phone, reference..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-white"
-          />
-        </div>
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-700"
-        >
-          <option value="all">All Statuses</option>
-          {INQUIRY_STATUSES.map((st) => (
-            <option key={st} value={st}>{st}</option>
-          ))}
-        </select>
-      </div>
+contact(){return `<div class="wrap sec" style="max-width:760px"><h1>Contact us</h1><p class="note">Address and business hours are still placeholders – send them and I will fill them in.</p><table><tbody><tr><th>Phone</th><td>${BIZ.phones.map(p=>`<a href="tel:+91${p}">+91 ${p.slice(0,5)} ${p.slice(5)}</a>`).join("<br>")}</td></tr><tr><th>WhatsApp</th><td>+91 ${BIZ.wa.slice(2,7)} ${BIZ.wa.slice(7)}</td></tr><tr><th>Email</th><td><a href="mailto:${BIZ.email}">${esc(BIZ.email)}</a></td></tr><tr><th>Address</th><td>${esc(BIZ.addr)}</td></tr><tr><th>Hours</th><td>${esc(BIZ.hours)}</td></tr></tbody></table><p style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn w" target="_blank" rel="noopener" href="${wa("Hello AS Traders")}">WhatsApp us</a><a class="btn o" href="#/request-quote">Request a quote</a></p><p class="tag">A Google Maps embed is added in the full build once the address is verified.</p></div>`},
 
-      {/* Pipeline Table */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-        <table className="w-full text-left text-sm text-slate-700">
-          <thead className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase">
-            <tr>
-              <th className="py-3 px-4">Ref Code</th>
-              <th className="py-3 px-4">Customer / Company</th>
-              <th className="py-3 px-4">Contact</th>
-              <th className="py-3 px-4">Items</th>
-              <th className="py-3 px-4">Status</th>
-              <th className="py-3 px-4">Date</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {filtered.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="py-8 text-center text-slate-400 text-xs">
-                  No inquiries found matching criteria.
-                </td>
-              </tr>
-            ) : (
-              filtered.map((iq) => (
-                <tr key={iq.id} className="hover:bg-slate-50/60">
-                  <td className="py-3 px-4 font-mono text-xs font-bold text-blue-900">
-                    {iq.reference_code}
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="font-semibold text-slate-900">{iq.customer_name}</div>
-                    <div className="text-xs text-slate-500">{iq.company_name || "Individual / Direct"}</div>
-                  </td>
-                  <td className="py-3 px-4 text-xs">
-                    <div>{iq.phone}</div>
-                    <div className="text-slate-400">{iq.email || "No email"}</div>
-                  </td>
-                  <td className="py-3 px-4 text-xs">
-                    <span className="font-medium text-slate-800">
-                      {iq.inquiry_items?.length || 0} items
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <select
-                      value={iq.status}
-                      onChange={(e) => handleStatusChange(iq.id, e.target.value as InquiryStatus)}
-                      className="text-xs font-medium border border-slate-200 rounded px-2 py-1 bg-white"
-                    >
-                      {INQUIRY_STATUSES.map((st) => (
-                        <option key={st} value={st}>{st}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="py-3 px-4 text-xs text-slate-500">
-                    {new Date(iq.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+admin(){const st=["New","Contacted","Quotation Sent","Negotiation","Confirmed","Closed"];
+return `<div class="wrap sec"><h1>Inquiries (demo)</h1><p class="note">Demo only: shows inquiries submitted in this browser. Real login, database, roles and email alerts belong to the full-stack build.</p>${mem.length?`<div class="scroll"><table><thead><tr><th>Date</th><th>Customer</th><th>Contact</th><th>Items</th><th>Status</th></tr></thead><tbody>${mem.map((m,i)=>`<tr><td>${esc(m.date)}</td><td>${esc(m.n)}<br><span class="tag">${esc(m.co)}</span></td><td>${esc(m.ph)}<br>${esc(m.em)}<br><span class="tag">${esc(m.dl)}</span></td><td>${esc(m.items)}<br><span class="tag">${esc(m.rq)}</span></td><td><select data-st="${i}" aria-label="Status">${st.map(s=>`<option${s===m.st?" selected":""}>${s}</option>`).join("")}</select></td></tr>`).join("")}</tbody></table></div><p><button class="btn o" id="csv">Export CSV</button></p>`:"<p>No inquiries yet. Submit one from Request a Quote.</p>"}</div>`}
+};
+
+function route(){const h=location.hash.slice(1)||"/",[path,qs]=h.split("?"),seg=path.split("/").filter(Boolean);
+let v;if(!seg.length)v=views.home();else if(seg[0]==="products")v=seg[1]?views.detail(seg[1]):views.products(qs);else if(seg[0]==="request-quote")v=views.quote();else v=(views[seg[0]]||views.home)();
+app.innerHTML=v;window.scrollTo(0,0);document.title=(seg[0]?seg[0].replace("-"," ")+" – ":"")+"AS Traders";
+document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#/"+(seg[0]||"")));
+["fq","fc","fs","fm","ff"].forEach(id=>{const e=$("#"+id);if(e)e.onchange=()=>{const u=new URLSearchParams();[["q","fq"],["c","fc"],["s","fs"],["m","fm"],["f","ff"]].forEach(([k,i])=>{const val=$("#"+i).value;if(val)u.set(k,val)});location.hash="#/products?"+u}});
+const qf=$("#qf");if(qf)qf.onsubmit=submitQuote;
 }
+function addItem(p,size,mat,fin){const ex=cart.find(c=>c.slug===p.slug&&c.size===size&&c.mat===mat&&c.fin===fin);ex?ex.qty++:cart.push({slug:p.slug,name:p.name,size,mat,fin,qty:1,unit:p.unit});saveCart();}
+function toast(t){const d=document.createElement("div");d.textContent=t;d.setAttribute("role","status");d.style.cssText="position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:4px;z-index:9";document.body.appendChild(d);setTimeout(()=>d.remove(),1800)}
+document.addEventListener("click",e=>{const t=e.target;
+if(t.dataset.add){const p=P(t.dataset.add);addItem(p,p.sizes[0],p.materials[0],p.finishes[0]);toast(p.name+" added to inquiry cart")}
+if(t.id==="dadd"){addItem(P(t.dataset.slug),$("#ds").value,$("#dm").value,$("#df").value);toast("Added to inquiry cart")}
+if(t.dataset.rm!==undefined){cart.splice(+t.dataset.rm,1);saveCart();route()}
+if(t.id==="csv"){const rows=[["Date","Name","Company","Phone","Email","GSTIN","Delivery","Items","Requirements","Status"]].concat(mem.map(m=>[m.date,m.n,m.co,m.ph,m.em,m.gs,m.dl,m.items,m.rq,m.st]));
+const csv=rows.map(r=>r.map(x=>'"'+String(x??"").replace(/"/g,'""')+'"').join(",")).join("\n");toast("CSV copied to clipboard");try{navigator.clipboard.writeText(csv)}catch(_){}}
+});
+document.addEventListener("change",e=>{const t=e.target;
+if(t.dataset.q!==undefined){cart[+t.dataset.q].qty=Math.max(1,+t.value||1);saveCart()}
+if(t.dataset.st!==undefined){mem[+t.dataset.st].st=t.value;store.set("as_inq",mem)}});
+$("#q").addEventListener("keydown",e=>{if(e.key==="Enter")location.hash="#/products?q="+encodeURIComponent(e.target.value)});
+function submitQuote(e){e.preventDefault();const g=i=>($("#"+i)?.value||"").trim(),err=$("#err");
+if(!g("n")||!g("ph")||!g("em")||!g("dl")){err.textContent="Please fill in name, phone, email and delivery location.";return}
+if(!/^\S+@\S+\.\S+$/.test(g("em"))){err.textContent="Enter a valid email address.";return}
+if(!/^[+\d\s-]{8,15}$/.test(g("ph"))){err.textContent="Enter a valid phone number.";return}
+if(g("gs")&&!/^[0-9A-Z]{15}$/i.test(g("gs"))){err.textContent="GSTIN must be 15 characters.";return}
+const items=cart.length?cart.map(c=>`${c.name} ${c.size} ${c.mat}/${c.fin} ×${c.qty}${c.unit}`).join("; "):`${g("pp")} ${g("ps")} ×${g("pq")}${g("pu")}`;
+mem.unshift({date:new Date().toLocaleDateString("en-IN"),n:g("n"),co:g("co"),ph:g("ph"),em:g("em"),gs:g("gs"),dl:g("dl"),items,rq:g("rq"),st:"New"});store.set("as_inq",mem);
+cart=[];saveCart();
+$("#qbox").innerHTML=`<div class="card"><h2>Quote request received</h2><p>Thank you, ${esc(g("n"))}. We will contact you on ${esc(g("ph"))} with a quotation.</p><a class="btn w" target="_blank" rel="noopener" href="${wa("Hello AS Traders, I just submitted a quote request: "+items)}">Continue on WhatsApp</a></div>`}
+$("#fcats").innerHTML=CATS.map(c=>`<a href="#/products?c=${c}">${c}</a>`).join("");window.addEventListener("hashchange",route);saveCart();route();
+</script>
+</body>
+</html>
